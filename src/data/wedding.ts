@@ -4,6 +4,8 @@ export const WEDDING = {
   date: new Date('2026-07-04T20:00:00'),
   dateLabel: 'السبت ٤ يوليو ٢٠٢٦',
   timeLabel: '٨:٠٠ مساءً',
+  audioUrl: '/audio.m4a', // زفة قد بارك ربي
+  rsvpPhone: '201156807072', // رقم الواتساب المخصص لاستقبال تأكيدات الحضور
 
   henna: {
     dateLabel: 'الجمعة ٣ يوليو ٢٠٢٦',
@@ -25,7 +27,6 @@ export const WEDDING = {
     { time: '٨:٠٠ مساءً', title: 'بداية الحفل', icon: '🎵' },
     { time: '٨:٣٠ مساءً', title: 'الزفة', icon: '🎶' },
     { time: '٩:٠٠ مساءً', title: 'التقاط الصور', icon: '📸' },
-    { time: '٩:٣٠ مساءً', title: 'العشاء', icon: '🍽️' },
     { time: '١٠:٣٠ مساءً', title: 'الاحتفال', icon: '💃' },
     { time: '١٢:٠٠ صباحاً', title: 'ختام الحفل', icon: '🎉' },
   ],
@@ -40,5 +41,5 @@ export const WEDDING = {
     { id: 7, src: 'https://picsum.photos/seed/wedding7/600/600', alt: 'صورة زفاف ٧' },
   ],
 
-  mapLink: 'https://maps.google.com/?q=منتجع+الكابيتانو+العدوة',
+  mapLink: 'https://maps.app.goo.gl/Z41HmPjh9Ft6CzwP7',
 } as const;

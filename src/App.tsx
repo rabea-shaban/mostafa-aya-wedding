@@ -10,7 +10,9 @@ import WeddingCeremony from './components/WeddingCeremony';
 import EventTimeline from './components/EventTimeline';
 import Location from './components/Location';
 import Footer from './components/Footer';
-import { WEDDING } from './data/wedding';
+import RSVP from './components/RSVP';
+import AudioPlayer from './components/AudioPlayer';
+import { Heart, X } from 'lucide-react';
 
 const navItems = [
   { id: 'countdown', label: 'العد التنازلي' },
@@ -18,6 +20,7 @@ const navItems = [
   { id: 'ceremony', label: 'حفل الزفاف' },
   { id: 'timeline', label: 'جدول المناسبة' },
   { id: 'location', label: 'الموقع' },
+  { id: 'rsvp', label: 'تأكيد الحضور' },
 ];
 
 function ScrollProgress() {
@@ -59,10 +62,18 @@ function NavBar() {
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16">
           <button
-            className="text-gold-400 font-bold text-sm sm:text-base gold-gradient"
+            className="h-8 sm:h-9 flex items-center gap-2 cursor-pointer"
             onClick={() => scrollTo('hero')}
+            aria-label="الرئيسية"
           >
-            {WEDDING.groom} & {WEDDING.bride}
+            <img 
+              src="/monogram.png" 
+              alt="شعار م & أ" 
+              className="h-full object-contain select-none"
+              style={{
+                filter: 'sepia(1) saturate(5) hue-rotate(-10deg) brightness(0.95)'
+              }}
+            />
           </button>
 
           {/* Desktop nav */}
@@ -129,6 +140,27 @@ function NavBar() {
 }
 
 export default function App() {
+  const [showGiftPopup, setShowGiftPopup] = useState(false);
+
+  useEffect(() => {
+    const hasSeen = sessionStorage.getItem('gift_popup_shown');
+    if (!hasSeen) {
+      const showTimer = setTimeout(() => {
+        setShowGiftPopup(true);
+        sessionStorage.setItem('gift_popup_shown', 'true');
+      }, 1500);
+
+      const hideTimer = setTimeout(() => {
+        setShowGiftPopup(false);
+      }, 7500);
+
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden" dir="rtl">
       <ScrollProgress />
@@ -136,6 +168,7 @@ export default function App() {
       <ParticlesBackground />
       <FloatingElements />
       <MouseGlow />
+      <AudioPlayer />
 
       <main className="relative z-10">
         <Hero />
@@ -144,9 +177,55 @@ export default function App() {
         <WeddingCeremony />
         <EventTimeline />
         <Location />
+        <RSVP />
       </main>
 
       <Footer />
+
+      {/* Gift Popup Modal */}
+      <AnimatePresence>
+        {showGiftPopup && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy-950/40 backdrop-blur-sm pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="glass-strong rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full text-center relative border border-gold-400/25 gold-shadow pointer-events-auto"
+              initial={{ scale: 0.8, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }}
+              exit={{ scale: 0.8, opacity: 0, y: 30, transition: { duration: 0.3 } }}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setShowGiftPopup(false)}
+                className="absolute top-4 right-4 text-gold-400/50 hover:text-gold-300 cursor-pointer p-1"
+                aria-label="إغلاق"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Heart Icon */}
+              <motion.div
+                className="w-12 h-12 rounded-full glass flex items-center justify-center text-gold-400 mx-auto mb-4 border border-gold-400/20"
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Heart className="w-6 h-6 fill-gold-400/10" />
+              </motion.div>
+
+              {/* Text */}
+              <h3 className="text-xl sm:text-2xl font-bold font-display gold-gradient mb-3 leading-relaxed">
+                إهداء خاص
+              </h3>
+              <p className="text-ivory text-sm sm:text-base leading-relaxed font-cairo">
+                تم عمل وإهداء هذا الموقع بواسطة أخو العريس المهندس ربيع شعبان
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

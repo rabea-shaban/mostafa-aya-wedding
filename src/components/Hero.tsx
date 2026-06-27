@@ -119,15 +119,15 @@ export default function Hero() {
             animate={{ scale: [1, 1.03, 1] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border border-gold-400/20 flex items-center justify-center gold-border-glow">
-              <svg viewBox="0 0 48 48" className="w-6 h-6 sm:w-8 sm:h-8">
-                <path d="M24 4 L28.5 17.5 L42 17.5 L31 26 L35.5 39.5 L24 31 L12.5 39.5 L17 26 L6 17.5 L19.5 17.5 Z"
-                  fill="none" stroke="url(#goldGrad)" strokeWidth="1.5" />
-                <defs><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#d4af37" />
-                  <stop offset="100%" stopColor="#f3d98a" />
-                </linearGradient></defs>
-              </svg>
+            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border border-gold-400/20 flex items-center justify-center gold-border-glow p-2 sm:p-3 overflow-hidden">
+              <img
+                src="/monogram.png"
+                alt="شعار م & أ"
+                className="w-full h-full object-contain select-none"
+                style={{
+                  filter: 'drop-shadow(0 0 4px rgba(191, 149, 63, 0.5))'
+                }}
+              />
             </div>
             {[0, 72, 144, 216, 288].map((deg, i) => (
               <motion.div
@@ -156,35 +156,36 @@ export default function Hero() {
 
         {/* Title */}
         <motion.h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold gold-gradient leading-[1.15] mb-4 sm:mb-6"
+          className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display gold-gradient leading-none mb-4 sm:mb-6 select-none font-bold"
           variants={zoomIn}
           style={{ y: titleY }}
         >
-          دعوة زفاف
+          حفل زفاف
         </motion.h1>
 
         <motion.div
-          className="w-16 sm:w-24 h-px gold-gradient-solid mx-auto mb-4 sm:mb-6 rounded-full"
+          className="w-16 sm:w-24 h-px gold-gradient-solid mx-auto mb-6 sm:mb-8 rounded-full"
           variants={fadeUp}
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         />
 
-        {/* Names */}
-        <motion.h2
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-ivory mb-2 sm:mb-3 tracking-wide"
+        {/* Names replaced by monogram */}
+        <motion.div
+          className="flex justify-center mb-6 sm:mb-8"
           variants={fadeUp}
         >
-          {WEDDING.groom}{' '}
-          <motion.span
-            className="text-gold-400/70 mx-1.5 sm:mx-2 inline-block"
-            animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            &
-          </motion.span>{' '}
-          {WEDDING.bride}
-        </motion.h2>
+          <div className="w-36 h-48 sm:w-56 sm:h-72">
+            <img 
+              src="/monogram.png" 
+              alt="شعار م & أ" 
+              className="w-full h-full object-contain select-none"
+              style={{
+                filter: 'sepia(1) saturate(6) hue-rotate(-10deg) brightness(0.95) drop-shadow(0 0 12px rgba(191, 149, 63, 0.45))'
+              }}
+            />
+          </div>
+        </motion.div>
 
         <motion.p className="text-gold-300/60 text-base sm:text-lg md:text-xl max-w-lg mx-auto leading-relaxed mb-3" variants={fadeUp}>
           يتشرفان بدعوتكم لحضور حفل زفافهما بإذن الله

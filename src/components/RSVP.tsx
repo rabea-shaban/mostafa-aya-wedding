@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, CheckCircle, User, Phone, Users, MessageCircle } from 'lucide-react';
+import { Send, CheckCircle, User, Phone, Users, MessageCircle, MessageSquare } from 'lucide-react';
+import { WEDDING } from '../data/wedding';
 
-type FieldKey = 'name' | 'phone' | 'guests' | 'attendance';
-interface Form { name: string; phone: string; guests: string; attendance: string; }
-type Errors = Partial<Record<FieldKey, string>>;
+type FieldKey = 'name' | 'phone' | 'guests' | 'attendance' | 'message';
+interface Form { name: string; phone: string; guests: string; attendance: string; message: string; }
+type Errors = Partial<Record<Exclude<FieldKey, 'message'>, string>>;
 
-const fields: { key: FieldKey; icon: typeof User; type: string; placeholder: string }[] = [
+const fields: { key: Exclude<FieldKey, 'message'>; icon: typeof User; type: string; placeholder: string }[] = [
   { key: 'name', icon: User, type: 'text', placeholder: 'الاسم الكريم' },
   { key: 'phone', icon: Phone, type: 'tel', placeholder: 'رقم الهاتف' },
   { key: 'guests', icon: Users, type: 'number', placeholder: 'عدد المرافقين' },
@@ -20,7 +21,7 @@ const attendanceOptions = [
 ];
 
 export default function RSVP() {
-  const [form, setForm] = useState<Form>({ name: '', phone: '', guests: '1', attendance: '' });
+  const [form, setForm] = useState<Form>({ name: '', phone: '', guests: '1', attendance: '', message: '' });
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState(false);
   const [focused, setFocused] = useState<FieldKey | null>(null);
@@ -30,8 +31,8 @@ export default function RSVP() {
     const e: Errors = {};
     if (!form.name.trim()) e.name = 'يرجى إدخال الاسم';
     if (!form.phone.trim()) e.phone = 'يرجى إدخال رقم الهاتف';
-    else if (!/^[\d+\- ]{7,15}$/.test(form.phone)) e.phone = 'رقم غير صحيح';
-    if (!form.guests || parseInt(form.guests) < 1) e.guests = 'عدد غير صحيح';
+    else if (!/^[\d+\- ]{7,15}$/.test(form.phone)) e.phone = 'رقم الهاتف غير صحيح';
+    if (!form.guests || parseInt(form.guests) < 1) e.guests = 'عدد المرافقين غير صحيح';
     if (!form.attendance) e.attendance = 'يرجى الاختيار';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -39,12 +40,30 @@ export default function RSVP() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (validate()) setSubmitted(true);
+    if (validate()) {
+      // Formulate WhatsApp message text
+      const statusLabel = attendanceOptions.find((o) => o.value === form.attendance)?.label || form.attendance;
+      const text = `السلام عليكم ورحمة الله وبركاته،\n` +
+        `أود تأكيد حضور حفل زفاف مصطفى وآية:\n\n` +
+        `👤 *الاسم:* ${form.name.trim()}\n` +
+        `📞 *الهاتف:* ${form.phone.trim()}\n` +
+        `💌 *حالة الحضور:* ${statusLabel}\n` +
+        `👥 *عدد المرافقين:* ${form.guests}\n` +
+        (form.message.trim() ? `💬 *التهنئة:* ${form.message.trim()}` : `💬 *التهنئة:* ألف مبروك للعروسين وسعداء بمشاركتكم الفرحة! 🎉`);
+
+      const url = `https://api.whatsapp.com/send?phone=${WEDDING.rsvpPhone}&text=${encodeURIComponent(text)}`;
+      
+      // Open WhatsApp link
+      window.open(url, '_blank');
+      setSubmitted(true);
+    }
   }
 
   function update(key: FieldKey, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    if (key !== 'message' && errors[key as Exclude<FieldKey, 'message'>]) {
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+    }
   }
 
   return (
@@ -62,7 +81,7 @@ export default function RSVP() {
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold gold-gradient mb-2 sm:mb-3">
             تأكيد الحضور
           </h2>
-          <p className="text-ivory/40 text-sm sm:text-base md:text-lg">ننتظركم لنكمل فرحتنا</p>
+          <p className="text-ivory/40 text-sm sm:text-base md:text-lg">ننتظركم لتكتمل فرحتنا وسعادتنا</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -132,9 +151,31 @@ export default function RSVP() {
                 </div>
               ))}
 
+              {/* Message field */}
+              <div>
+                <div
+                  className={`flex items-start gap-3 glass rounded-xl border transition-all duration-300 ${
+                    focused === 'message' ? 'border-gold-400/40 gold-shadow' : 'border-gold-400/10'
+                  }`}
+                >
+                  <div className="pt-3.5 pr-3 sm:pr-4">
+                    <MessageSquare className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300 ${focused === 'message' ? 'text-gold-400' : 'text-gold-400/30'}`} />
+                  </div>
+                  <textarea
+                    value={form.message}
+                    onChange={(e) => update('message', e.target.value)}
+                    onFocus={() => setFocused('message')}
+                    onBlur={() => setFocused(null)}
+                    placeholder="رسالة تهنئة للعروسين (اختياري)"
+                    rows={3}
+                    className="w-full bg-transparent py-3 pl-3 sm:pl-4 text-ivory text-sm sm:text-base outline-none resize-none placeholder:text-ivory/30"
+                  />
+                </div>
+              </div>
+
               <motion.button
                 type="submit"
-                className="group relative w-full py-3.5 sm:py-4 rounded-full gold-gradient-solid text-navy-950 font-bold text-sm sm:text-lg overflow-hidden transition-all duration-500 hover:shadow-[0_0_35px_rgba(212,175,55,0.35)] focus-visible:outline-2 focus-visible:outline-gold-400"
+                className="group relative w-full py-3.5 sm:py-4 rounded-full gold-gradient-solid text-navy-950 font-bold text-sm sm:text-lg overflow-hidden transition-all duration-500 hover:shadow-[0_0_35px_rgba(212,175,55,0.35)] focus-visible:outline-2 focus-visible:outline-gold-400 cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -145,7 +186,7 @@ export default function RSVP() {
                 />
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                  تأكيد الحضور
+                  تأكيد الحضور عبر WhatsApp
                 </span>
               </motion.button>
             </motion.form>
@@ -182,17 +223,18 @@ function SuccessView({ name }: { name: string }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        تم تأكيد الحضور
+        تم تأكيد الحضور بنجاح!
       </motion.h3>
 
       <motion.p
-        className="text-ivory/50 text-sm sm:text-base md:text-lg"
+        className="text-ivory/60 text-sm sm:text-base md:text-lg mb-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.45 }}
       >
-        شكراً لك {name}، نحن بانتظاركم في موعد المناسبة
+        شكراً لك {name}، تم إرسال تأكيد حضورك وتوجيهك لتطبيق WhatsApp.
       </motion.p>
+      <p className="text-gold-400/50 text-xs sm:text-sm">نحن بانتظاركم بكل حب وشوق في موعد المناسبة</p>
 
       <motion.div
         className="flex justify-center gap-2 sm:gap-3 mt-6 sm:mt-8"

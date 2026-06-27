@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Heart, Sparkles } from 'lucide-react';
-import { WEDDING } from '../data/wedding';
 
 export default function Footer() {
   return (
@@ -70,9 +69,16 @@ export default function Footer() {
           >
             &ldquo;بحضوركم تكتمل فرحتنا<br className="sm:hidden" /> وتزداد سعادتنا&rdquo;
           </motion.p>
-          <p className="text-ivory/30 text-xs sm:text-sm md:text-base mb-6 sm:mb-8">
-            {WEDDING.groom} & {WEDDING.bride}
-          </p>
+          <div className="flex justify-center mb-6 sm:mb-8">
+            <img 
+              src="/monogram.png" 
+              alt="شعار م & أ" 
+              className="h-8 sm:h-9 object-contain select-none"
+              style={{
+                filter: 'sepia(1) saturate(5) hue-rotate(-10deg) brightness(0.95) opacity(0.3)'
+              }}
+            />
+          </div>
         </motion.div>
 
         {/* Floating hearts */}
@@ -92,13 +98,24 @@ export default function Footer() {
           ))}
         </div>
 
+        {/* Gift Credit */}
+        <motion.div
+          className="text-gold-400/60 text-xs sm:text-sm font-medium mt-4 mb-4 font-cairo select-none"
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          تم عمل وإهداء هذا الموقع بواسطة أخو العريس المهندس ربيع شعبان
+        </motion.div>
+
         {/* Signature */}
         <motion.div
-          className="flex items-center justify-center gap-1.5 sm:gap-2 text-ivory/20 text-[10px] sm:text-xs"
+          className="flex items-center justify-center gap-1.5 sm:gap-2 text-ivory/25 text-[10px] sm:text-xs select-none"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
         >
           <span>صمم بحب</span>
           <motion.div
