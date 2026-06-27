@@ -38,11 +38,43 @@ function ScrollProgress() {
 function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
     function onScroll() { setScrolled(window.scrollY > 100); }
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -50% 0px',
+      threshold: 0,
+    };
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, observerOptions);
+
+    const ids = ['hero', ...navItems.map((item) => item.id)];
+    ids.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => {
+      ids.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) observer.unobserve(element);
+      });
+    };
   }, []);
 
   function scrollTo(id: string) {
@@ -78,15 +110,27 @@ function NavBar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => scrollTo(item.id)}
-                className="px-3 py-1.5 text-xs text-ivory/50 hover:text-gold-300 transition-colors rounded-lg hover:bg-gold-400/5"
-              >
-                {item.label}
-              </button>
-            ))}
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => scrollTo(item.id)}
+                  className={`px-3 py-1.5 text-xs transition-colors rounded-lg relative cursor-pointer ${
+                    isActive ? 'text-gold-300 font-semibold' : 'text-ivory/50 hover:text-gold-300'
+                  }`}
+                >
+                  <span className="relative z-10">{item.label}</span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="activeNavIndicator"
+                      className="absolute inset-0 bg-gold-400/10 rounded-lg border border-gold-400/20"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Mobile hamburger */}
@@ -111,18 +155,30 @@ function NavBar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {navItems.map((item, i) => (
-              <motion.button
-                key={item.id}
-                className="text-xl text-ivory/70 hover:text-gold-300 transition-colors"
-                onClick={() => scrollTo(item.id)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                {item.label}
-              </motion.button>
-            ))}
+            {navItems.map((item, i) => {
+              const isActive = activeSection === item.id;
+              return (
+                <motion.button
+                  key={item.id}
+                  className={`text-xl transition-colors cursor-pointer relative py-2 px-6 rounded-xl ${
+                    isActive ? 'text-gold-300 font-bold' : 'text-ivory/70 hover:text-gold-300'
+                  }`}
+                  onClick={() => scrollTo(item.id)}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <span className="relative z-10">{item.label}</span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="activeNavIndicatorMobile"
+                      className="absolute inset-0 bg-gold-400/10 rounded-xl border border-gold-400/20"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
             <motion.button
               className="mt-4 text-gold-400/50 text-sm"
               onClick={() => setOpen(false)}

@@ -117,6 +117,16 @@
   button {
     font-family: inherit;
   }
+
+  section[id]:not(#hero) {
+    scroll-margin-top: 70px;
+  }
+
+  @media (min-width: 768px) {
+    section[id]:not(#hero) {
+      scroll-margin-top: 85px;
+    }
+  }
 }
 
 @layer utilities {
